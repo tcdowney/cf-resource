@@ -18,6 +18,7 @@ type Params struct {
 	DockerPassword       string                 `json:"docker_password"`
 	ShowAppLog           bool                   `json:"show_app_log"`
 	NoStart              bool                   `json:"no_start"`
+	UseCFZDT             bool                   `json:"use_cf_zdt"`
 }
 
 type Response struct {

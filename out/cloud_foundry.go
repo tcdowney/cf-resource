@@ -12,6 +12,7 @@ type PAAS interface {
 	Login(api string, username string, password string, clientID string, clientSecret string, insecure bool) error
 	Target(organization string, space string) error
 	PushApp(manifest string, path string, currentAppName string, vars map[string]interface{}, varsFiles []string, dockerUser string, showLogs bool, noStart bool) error
+	PushAppWithZDT( path string, currentAppName string, dockerUser string, showLogs bool, noStart bool) error
 }
 
 type CloudFoundry struct {
@@ -41,6 +42,16 @@ func (cf *CloudFoundry) Login(api string, username string, password string, clie
 
 func (cf *CloudFoundry) Target(organization string, space string) error {
 	return cf.cf("target", "-o", organization, "-s", space).Run()
+}
+
+func (cf *CloudFoundry) PushAppWithZDT(
+	path string,
+	currentAppName string,
+	dockerUser string,
+	showLogs bool,
+	noStart bool,
+) error {
+	return cf.simpleZDTPush(path, currentAppName, dockerUser, noStart)
 }
 
 func (cf *CloudFoundry) PushApp(
@@ -115,6 +126,43 @@ func (cf *CloudFoundry) simplePush(
 	return cf.cf(args...).Run()
 }
 
+
+func (cf *CloudFoundry) simpleZDTPush(
+	path string,
+	currentAppName string,
+	dockerUser string,
+	noStart bool,
+) error {
+	args := []string{"v3-zdt-push"}
+
+	if currentAppName != "" {
+		args = append(args, currentAppName)
+	}
+
+	if noStart {
+		args = append(args, "--no-start")
+	}
+
+	if dockerUser != "" {
+		args = append(args, "--docker-username", dockerUser)
+	}
+
+	if path != "" {
+		stat, err := os.Stat(path)
+		if err != nil {
+			return err
+		}
+		if stat.IsDir() {
+			args = append(args, "-p", ".")
+			return chdir(path, cf.cf(args...).Run)
+		}
+
+		// path is a zip file, add it to the args
+		args = append(args, "-p", path, "--wait-for-deploy-complete")
+	}
+
+	return cf.cf(args...).Run()
+}
 func chdir(path string, f func() error) error {
 	oldpath, err := os.Getwd()
 	if err != nil {

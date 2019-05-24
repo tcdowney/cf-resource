@@ -48,17 +48,32 @@ func (command *Command) Run(request Request) (Response, error) {
 	if request.Params.DockerPassword != "" {
 		os.Setenv(CfDockerPassword, request.Params.DockerPassword)
 	}
+	needToCallPushApp := true
+	if request.Params.UseCFZDT {
+		err = command.paas.PushAppWithZDT(
+			request.Params.Path,
+			request.Params.CurrentAppName,
+			request.Params.DockerUsername,
+			request.Params.ShowAppLog,
+			request.Params.NoStart,
+		)
+		if err == nil {
+			needToCallPushApp = false
+		}
+	}
 
-	err = command.paas.PushApp(
-		request.Params.ManifestPath,
-		request.Params.Path,
-		request.Params.CurrentAppName,
-		request.Params.Vars,
-		request.Params.VarsFiles,
-		request.Params.DockerUsername,
-		request.Params.ShowAppLog,
-		request.Params.NoStart,
-	)
+	if needToCallPushApp {
+		err = command.paas.PushApp(
+			request.Params.ManifestPath,
+			request.Params.Path,
+			request.Params.CurrentAppName,
+			request.Params.Vars,
+			request.Params.VarsFiles,
+			request.Params.DockerUsername,
+			request.Params.ShowAppLog,
+			request.Params.NoStart,
+		)
+	}
 	if err != nil {
 		return Response{}, err
 	}
