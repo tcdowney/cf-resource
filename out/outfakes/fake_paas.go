@@ -8,6 +8,17 @@ import (
 )
 
 type FakePAAS struct {
+	ApplyManifestStub        func(string) error
+	applyManifestMutex       sync.RWMutex
+	applyManifestArgsForCall []struct {
+		arg1 string
+	}
+	applyManifestReturns struct {
+		result1 error
+	}
+	applyManifestReturnsOnCall map[int]struct {
+		result1 error
+	}
 	LoginStub        func(string, string, string, string, string, bool) error
 	loginMutex       sync.RWMutex
 	loginArgsForCall []struct {
@@ -42,19 +53,20 @@ type FakePAAS struct {
 	pushAppReturnsOnCall map[int]struct {
 		result1 error
 	}
-	PushAppWithZDTStub        func(string, string, string, bool, bool) error
-	pushAppWithZDTMutex       sync.RWMutex
-	pushAppWithZDTArgsForCall []struct {
+	PushAppWithRollingDeploymentStub        func(string, string, string, bool, bool, string) error
+	pushAppWithRollingDeploymentMutex       sync.RWMutex
+	pushAppWithRollingDeploymentArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
 		arg4 bool
 		arg5 bool
+		arg6 string
 	}
-	pushAppWithZDTReturns struct {
+	pushAppWithRollingDeploymentReturns struct {
 		result1 error
 	}
-	pushAppWithZDTReturnsOnCall map[int]struct {
+	pushAppWithRollingDeploymentReturnsOnCall map[int]struct {
 		result1 error
 	}
 	TargetStub        func(string, string) error
@@ -71,6 +83,66 @@ type FakePAAS struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakePAAS) ApplyManifest(arg1 string) error {
+	fake.applyManifestMutex.Lock()
+	ret, specificReturn := fake.applyManifestReturnsOnCall[len(fake.applyManifestArgsForCall)]
+	fake.applyManifestArgsForCall = append(fake.applyManifestArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("ApplyManifest", []interface{}{arg1})
+	fake.applyManifestMutex.Unlock()
+	if fake.ApplyManifestStub != nil {
+		return fake.ApplyManifestStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.applyManifestReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakePAAS) ApplyManifestCallCount() int {
+	fake.applyManifestMutex.RLock()
+	defer fake.applyManifestMutex.RUnlock()
+	return len(fake.applyManifestArgsForCall)
+}
+
+func (fake *FakePAAS) ApplyManifestCalls(stub func(string) error) {
+	fake.applyManifestMutex.Lock()
+	defer fake.applyManifestMutex.Unlock()
+	fake.ApplyManifestStub = stub
+}
+
+func (fake *FakePAAS) ApplyManifestArgsForCall(i int) string {
+	fake.applyManifestMutex.RLock()
+	defer fake.applyManifestMutex.RUnlock()
+	argsForCall := fake.applyManifestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakePAAS) ApplyManifestReturns(result1 error) {
+	fake.applyManifestMutex.Lock()
+	defer fake.applyManifestMutex.Unlock()
+	fake.ApplyManifestStub = nil
+	fake.applyManifestReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakePAAS) ApplyManifestReturnsOnCall(i int, result1 error) {
+	fake.applyManifestMutex.Lock()
+	defer fake.applyManifestMutex.Unlock()
+	fake.ApplyManifestStub = nil
+	if fake.applyManifestReturnsOnCall == nil {
+		fake.applyManifestReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.applyManifestReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakePAAS) Login(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string, arg6 bool) error {
@@ -210,66 +282,67 @@ func (fake *FakePAAS) PushAppReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakePAAS) PushAppWithZDT(arg1 string, arg2 string, arg3 string, arg4 bool, arg5 bool) error {
-	fake.pushAppWithZDTMutex.Lock()
-	ret, specificReturn := fake.pushAppWithZDTReturnsOnCall[len(fake.pushAppWithZDTArgsForCall)]
-	fake.pushAppWithZDTArgsForCall = append(fake.pushAppWithZDTArgsForCall, struct {
+func (fake *FakePAAS) PushAppWithRollingDeployment(arg1 string, arg2 string, arg3 string, arg4 bool, arg5 bool, arg6 string) error {
+	fake.pushAppWithRollingDeploymentMutex.Lock()
+	ret, specificReturn := fake.pushAppWithRollingDeploymentReturnsOnCall[len(fake.pushAppWithRollingDeploymentArgsForCall)]
+	fake.pushAppWithRollingDeploymentArgsForCall = append(fake.pushAppWithRollingDeploymentArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
 		arg4 bool
 		arg5 bool
-	}{arg1, arg2, arg3, arg4, arg5})
-	fake.recordInvocation("PushAppWithZDT", []interface{}{arg1, arg2, arg3, arg4, arg5})
-	fake.pushAppWithZDTMutex.Unlock()
-	if fake.PushAppWithZDTStub != nil {
-		return fake.PushAppWithZDTStub(arg1, arg2, arg3, arg4, arg5)
+		arg6 string
+	}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.recordInvocation("PushAppWithRollingDeployment", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.pushAppWithRollingDeploymentMutex.Unlock()
+	if fake.PushAppWithRollingDeploymentStub != nil {
+		return fake.PushAppWithRollingDeploymentStub(arg1, arg2, arg3, arg4, arg5, arg6)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.pushAppWithZDTReturns
+	fakeReturns := fake.pushAppWithRollingDeploymentReturns
 	return fakeReturns.result1
 }
 
-func (fake *FakePAAS) PushAppWithZDTCallCount() int {
-	fake.pushAppWithZDTMutex.RLock()
-	defer fake.pushAppWithZDTMutex.RUnlock()
-	return len(fake.pushAppWithZDTArgsForCall)
+func (fake *FakePAAS) PushAppWithRollingDeploymentCallCount() int {
+	fake.pushAppWithRollingDeploymentMutex.RLock()
+	defer fake.pushAppWithRollingDeploymentMutex.RUnlock()
+	return len(fake.pushAppWithRollingDeploymentArgsForCall)
 }
 
-func (fake *FakePAAS) PushAppWithZDTCalls(stub func(string, string, string, bool, bool) error) {
-	fake.pushAppWithZDTMutex.Lock()
-	defer fake.pushAppWithZDTMutex.Unlock()
-	fake.PushAppWithZDTStub = stub
+func (fake *FakePAAS) PushAppWithRollingDeploymentCalls(stub func(string, string, string, bool, bool, string) error) {
+	fake.pushAppWithRollingDeploymentMutex.Lock()
+	defer fake.pushAppWithRollingDeploymentMutex.Unlock()
+	fake.PushAppWithRollingDeploymentStub = stub
 }
 
-func (fake *FakePAAS) PushAppWithZDTArgsForCall(i int) (string, string, string, bool, bool) {
-	fake.pushAppWithZDTMutex.RLock()
-	defer fake.pushAppWithZDTMutex.RUnlock()
-	argsForCall := fake.pushAppWithZDTArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
+func (fake *FakePAAS) PushAppWithRollingDeploymentArgsForCall(i int) (string, string, string, bool, bool, string) {
+	fake.pushAppWithRollingDeploymentMutex.RLock()
+	defer fake.pushAppWithRollingDeploymentMutex.RUnlock()
+	argsForCall := fake.pushAppWithRollingDeploymentArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
-func (fake *FakePAAS) PushAppWithZDTReturns(result1 error) {
-	fake.pushAppWithZDTMutex.Lock()
-	defer fake.pushAppWithZDTMutex.Unlock()
-	fake.PushAppWithZDTStub = nil
-	fake.pushAppWithZDTReturns = struct {
+func (fake *FakePAAS) PushAppWithRollingDeploymentReturns(result1 error) {
+	fake.pushAppWithRollingDeploymentMutex.Lock()
+	defer fake.pushAppWithRollingDeploymentMutex.Unlock()
+	fake.PushAppWithRollingDeploymentStub = nil
+	fake.pushAppWithRollingDeploymentReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *FakePAAS) PushAppWithZDTReturnsOnCall(i int, result1 error) {
-	fake.pushAppWithZDTMutex.Lock()
-	defer fake.pushAppWithZDTMutex.Unlock()
-	fake.PushAppWithZDTStub = nil
-	if fake.pushAppWithZDTReturnsOnCall == nil {
-		fake.pushAppWithZDTReturnsOnCall = make(map[int]struct {
+func (fake *FakePAAS) PushAppWithRollingDeploymentReturnsOnCall(i int, result1 error) {
+	fake.pushAppWithRollingDeploymentMutex.Lock()
+	defer fake.pushAppWithRollingDeploymentMutex.Unlock()
+	fake.PushAppWithRollingDeploymentStub = nil
+	if fake.pushAppWithRollingDeploymentReturnsOnCall == nil {
+		fake.pushAppWithRollingDeploymentReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.pushAppWithZDTReturnsOnCall[i] = struct {
+	fake.pushAppWithRollingDeploymentReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -338,12 +411,14 @@ func (fake *FakePAAS) TargetReturnsOnCall(i int, result1 error) {
 func (fake *FakePAAS) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.applyManifestMutex.RLock()
+	defer fake.applyManifestMutex.RUnlock()
 	fake.loginMutex.RLock()
 	defer fake.loginMutex.RUnlock()
 	fake.pushAppMutex.RLock()
 	defer fake.pushAppMutex.RUnlock()
-	fake.pushAppWithZDTMutex.RLock()
-	defer fake.pushAppWithZDTMutex.RUnlock()
+	fake.pushAppWithRollingDeploymentMutex.RLock()
+	defer fake.pushAppWithRollingDeploymentMutex.RUnlock()
 	fake.targetMutex.RLock()
 	defer fake.targetMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

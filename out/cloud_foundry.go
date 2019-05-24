@@ -9,10 +9,11 @@ import (
 
 //go:generate counterfeiter . PAAS
 type PAAS interface {
+	ApplyManifest(manifest string) error
 	Login(api string, username string, password string, clientID string, clientSecret string, insecure bool) error
 	Target(organization string, space string) error
 	PushApp(manifest string, path string, currentAppName string, vars map[string]interface{}, varsFiles []string, dockerUser string, showLogs bool, noStart bool) error
-	PushAppWithZDT( path string, currentAppName string, dockerUser string, showLogs bool, noStart bool) error
+	PushAppWithRollingDeployment( path string, currentAppName string, dockerUser string, showLogs bool, noStart bool, manifest string) error
 }
 
 type CloudFoundry struct {
@@ -44,15 +45,21 @@ func (cf *CloudFoundry) Target(organization string, space string) error {
 	return cf.cf("target", "-o", organization, "-s", space).Run()
 }
 
-func (cf *CloudFoundry) PushAppWithZDT(
+func (cf *CloudFoundry) PushAppWithRollingDeployment(
 	path string,
 	currentAppName string,
 	dockerUser string,
 	showLogs bool,
 	noStart bool,
+	manifest string,
 ) error {
-	return cf.simpleZDTPush(path, currentAppName, dockerUser, noStart)
+
+	if manifest != "" {
+		cf.ApplyManifest(manifest)
+	}
+	return cf.simpleRollingDeploymentPush(path, currentAppName, dockerUser, noStart)
 }
+
 
 func (cf *CloudFoundry) PushApp(
 	manifest string,
@@ -126,8 +133,11 @@ func (cf *CloudFoundry) simplePush(
 	return cf.cf(args...).Run()
 }
 
+func (cf *CloudFoundry) ApplyManifest(manifest string) error {
+	return cf.cf("v3-apply-manifest", "-f", manifest).Run()
+}
 
-func (cf *CloudFoundry) simpleZDTPush(
+func (cf *CloudFoundry) simpleRollingDeploymentPush(
 	path string,
 	currentAppName string,
 	dockerUser string,
@@ -163,6 +173,7 @@ func (cf *CloudFoundry) simpleZDTPush(
 
 	return cf.cf(args...).Run()
 }
+
 func chdir(path string, f func() error) error {
 	oldpath, err := os.Getwd()
 	if err != nil {

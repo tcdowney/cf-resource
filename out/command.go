@@ -49,13 +49,14 @@ func (command *Command) Run(request Request) (Response, error) {
 		os.Setenv(CfDockerPassword, request.Params.DockerPassword)
 	}
 	needToCallPushApp := true
-	if request.Params.UseCFZDT {
-		err = command.paas.PushAppWithZDT(
+	if request.Params.UseRollingAppDeployment {
+		err = command.paas.PushAppWithRollingDeployment(
 			request.Params.Path,
 			request.Params.CurrentAppName,
 			request.Params.DockerUsername,
 			request.Params.ShowAppLog,
 			request.Params.NoStart,
+			request.Params.ManifestPath,
 		)
 		if err == nil {
 			needToCallPushApp = false
