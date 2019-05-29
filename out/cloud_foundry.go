@@ -53,9 +53,11 @@ func (cf *CloudFoundry) PushAppWithRollingDeployment(
 	noStart bool,
 	manifest string,
 ) error {
+	fmt.Fprintf(os.Stderr, "QQQ: PushAppWithRollingDeployment: version:\n")
+	cf.cf("version").Run()
 
 	if manifest != "" {
-		cf.ApplyManifest(manifest)
+		cf.ApplyManifest(currentAppName, manifest)
 	}
 	return cf.simpleRollingDeploymentPush(path, currentAppName, dockerUser, noStart)
 }
@@ -72,6 +74,8 @@ func (cf *CloudFoundry) PushApp(
 	noStart bool,
 ) error {
 
+	fmt.Fprintf(os.Stderr, "QQQ: PushApp: version:\n")
+	cf.cf("version").Run()
 	if zdt.CanPush(cf.cf, currentAppName) {
 		pushFunction := func() error {
 			return cf.simplePush(manifest, path, currentAppName, vars, varsFiles, dockerUser, noStart)

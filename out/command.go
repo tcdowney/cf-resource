@@ -1,6 +1,7 @@
 package out
 
 import (
+	"fmt"
 	"time"
 
 	"os"
@@ -49,6 +50,7 @@ func (command *Command) Run(request Request) (Response, error) {
 		os.Setenv(CfDockerPassword, request.Params.DockerPassword)
 	}
 	needToCallPushApp := true
+	fmt.Fprintf(os.Stderr, "QQQ: request.Params.UseRollingAppDeployment = %v\n", request.Params.UseRollingAppDeployment)
 	if request.Params.UseRollingAppDeployment {
 		err = command.paas.PushAppWithRollingDeployment(
 			request.Params.Path,
